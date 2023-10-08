@@ -1,0 +1,17 @@
+CREATE TABLE pollquestion (
+    id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+    body VARCHAR(256) NOT NULL,
+    opt1 VARCHAR(50) NOT NULL,
+    opt2 VARCHAR(50) NOT NULL,
+    opt3 VARCHAR(50),
+    opt4 VARCHAR(50),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE pollanswer (
+    id INTEGER NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    answer VARCHAR(50) NOT NULL,
+    PRIMARY KEY (id, username),
+    FOREIGN KEY (id) REFERENCES pollquestion (id)
+);

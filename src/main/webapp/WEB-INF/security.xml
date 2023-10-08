@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans xmlns="http://www.springframework.org/schema/security"
+         xmlns:b="http://www.springframework.org/schema/beans"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns:context="http://www.springframework.org/schema/context"
+         xmlns:tx="http://www.springframework.org/schema/tx"
+
+
+         xsi:schemaLocation="http://www.springframework.org/schema/beans
+                      http://www.springframework.org/schema/beans/spring-beans.xsd
+                      http://www.springframework.org/schema/security               
+                      http://www.springframework.org/schema/security/spring-security.xsd
+                      http://www.springframework.org/schema/context
+                      http://www.springframework.org/schema/context/spring-context.xsd
+                      http://www.springframework.org/schema/tx
+                      http://www.springframework.org/schema/tx/spring-tx.xsd
+">
+    <b:bean id="dataSource"
+            class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <b:property name="driverClassName" value="org.apache.derby.jdbc.ClientDriver" />
+        <b:property name="url" value="jdbc:derby://localhost:1527/project" />
+        <b:property name="username" value="nbuser" />
+        <b:property name="password" value="nbuser" />
+    </b:bean> 
+
+    <http>
+        <intercept-url pattern="/" access="permitAll"/>
+        <intercept-url pattern="/lecture/view/**" access="isAuthenticated()"/>
+        <intercept-url pattern="/user" access="hasRole('LECTURER')" />
+        <intercept-url pattern="/user/list" access="hasRole('LECTURER')" />
+        <intercept-url pattern="/user/delete" access="hasRole('LECTURER')" />
+        <intercept-url pattern="/user/updateUser" access="hasRole('LECTURER')" />
+        <intercept-url pattern="/lecture/list" access="hasAnyRole('STUDENT','LECTURER')" />
+        <intercept-url pattern="/lecture/delete/**" access="hasRole('LECTURER')" /> 
+        <intercept-url pattern="/user/updateUser/**" access="hasRole('LECTURER')" />
+        <intercept-url pattern="/lecture/create" access="hasRole('LECTURER')" />
+        <intercept-url pattern="/lecture/comment/**" access="hasAnyRole('LECTURER','STUDENT')" />
+        <intercept-url pattern="/comment/create" access="hasAnyRole('LECTURER','STUDENT')" />
+        <intercept-url pattern="/poll/**" access="hasAnyRole('LECTURER','STUDENT')" />
+        <intercept-url pattern="/poll/view/**" access="hasAnyRole('LECTURER','STUDENT')" />
+        <intercept-url pattern="/poll/delete/**" access="hasRole('LECTURER')" />
+        <intercept-url pattern="/poll/create/**" access="hasRole('LECTURER')" />
+        <form-login login-page="/login" login-processing-url="/login"
+                    authentication-failure-url="/login?error" />
+        <logout logout-url="/logout" logout-success-url="/login?logout"
+                invalidate-session="true" delete-cookies="JSESSIONID" />
+        <remember-me key="custSupportSecret" token-validity-seconds="86400" />
+    </http>
+
+    <b:bean id="transactionManager" 
+            class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <b:property name="dataSource" ref="dataSource" />
+    </b:bean>
+
+    <!-- Enable annotation driven transaction management -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+
+    <context:component-scan base-package="hkmu.comps380f.dao" />
+
+    <authentication-manager>
+        <authentication-provider user-service-ref="lectureUserService" />
+    </authentication-manager>
+</b:beans>
